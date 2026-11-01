@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Keep Your Cool</title>
+<meta name="theme-color" content="#13232B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Keep Your Cool">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Big+Shoulders+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Impact, sans-serif;
+  --body: "Atkinson Hyperlegible", -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+  --bg: #EDF2F4;
+  --surface: #FFFFFF;
+  --surface-2: #E1E8EB;
+  --ink: #13232B;
+  --muted: #56666E;
+  --line: #C9D4D9;
+  --cat-bg: #13232B;
+  --cat-ink: #F2F6F8;
+  --used-bg: #DCE3E7;
+  --used-ink: #9AABB3;
+  --heat-1: #1E5F78;
+  --heat-2: #2D7470;
+  --heat-3: #9A7420;
+  --heat-4: #B65A24;
+  --heat-5: #A12E2E;
+  --team-0: #4B4FB0;
+  --team-1: #2E7D52;
+  --good: #2E7D52;
+  --bad: #A12E2E;
+  --scrim: rgba(19, 35, 43, 0.55);
+  color-scheme: light;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F171B;
+    --surface: #18232A;
+    --surface-2: #213039;
+    --ink: #E8EEF1;
+    --muted: #9AABB3;
+    --line: #2C3D46;
+    --cat-bg: #24343D;
+    --cat-ink: #E8EEF1;
+    --used-bg: #172128;
+    --used-ink: #3E5059;
+    --team-0: #8C90F2;
+    --team-1: #62C48D;
+    --good: #62C48D;
+    --bad: #F08080;
+    --scrim: rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F171B;
+  --surface: #18232A;
+  --surface-2: #213039;
+  --ink: #E8EEF1;
+  --muted: #9AABB3;
+  --line: #2C3D46;
+  --cat-bg: #24343D;
+  --cat-ink: #E8EEF1;
+  --used-bg: #172128;
+  --used-ink: #3E5059;
+  --team-0: #8C90F2;
+  --team-1: #62C48D;
+  --good: #62C48D;
+  --bad: #F08080;
+  --scrim: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--heat-1); outline-offset: 2px; }
+input { -webkit-user-select: text; user-select: text; }
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
+  gap: 10px;
+}
+
+.rotate-hint { display: none; }
+@media (orientation: portrait) {
+  .rotate-hint {
+    display: block;
+    background: var(--surface-2);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 15px;
+    text-align: center;
+  }
+}
+
+/* ---------- top bar ---------- */
+.topbar { display: flex; align-items: center; gap: 16px; min-height: 44px; }
+.brand { font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: 0.01em; line-height: 1; }
+.heatline { display: flex; gap: 3px; }
+.heatline span { width: 18px; height: 6px; border-radius: 3px; }
+.round-name { margin-left: auto; font-size: 17px; color: var(--muted); }
+.ghost {
+  background: transparent; border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 0 18px; min-height: 44px; font-weight: 700; font-size: 16px;
+}
+
+/* ---------- board ---------- */
+.board {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 0.95fr) repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.cat {
+  background: var(--cat-bg);
+  color: var(--cat-ink);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 6px 8px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(15px, 2.7vh, 28px);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.tile {
+  border: 0;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(28px, 7vh, 72px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: transform 120ms ease;
+}
+.tile:active { transform: scale(0.97); }
+.heat-1 { background: var(--heat-1); }
+.heat-2 { background: var(--heat-2); }
+.heat-3 { background: var(--heat-3); }
+.heat-4 { background: var(--heat-4); }
+.heat-5 { background: var(--heat-5); }
+.tile.used { background: var(--used-bg); color: var(--used-ink); cursor: default; font-size: clamp(18px, 3.4vh, 30px); }
+.tile.used:active { transform: none; }
+
+/* ---------- score bar ---------- */
+.scorebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.team {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 12px;
+  border: 3px solid transparent;
+}
+.team.t0 { --tc: var(--team-0); }
+.team.t1 { --tc: var(--team-1); }
+.team.in-control { border-color: var(--tc); }
+.team-label { min-width: 0; flex: 1; }
+.team-name {
+  display: block; color: var(--tc); font-weight: 700; font-size: 19px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.picks { font-size: 14px; color: var(--muted); }
+.score {
+  font-family: var(--display); font-weight: 900;
+  font-size: clamp(36px, 7.2vh, 68px); line-height: 1;
+  font-variant-numeric: tabular-nums; min-width: 2.6ch; text-align: right;
+}
+.adj {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: var(--surface-2);
+  font-size: 24px; font-weight: 700; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.mid { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 6px; color: var(--muted); font-size: 15px; text-align: center; }
+.mid strong { font-family: var(--display); font-size: 34px; font-weight: 900; color: var(--ink); line-height: 1; }
+
+/* ---------- overlays ---------- */
+.layer {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(20px, env(safe-area-inset-left, 0px));
+  background: var(--bg);
+  animation: open 180ms ease-out;
+}
+.layer.sheet-layer { z-index: 30; background: var(--scrim); align-items: center; justify-content: center; }
+@keyframes open { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .layer, .reveal { animation: none !important; } .tile { transition: none; } }
+
+.clue-band { height: 10px; border-radius: 5px; margin-bottom: 14px; }
+.clue-head { display: flex; align-items: center; gap: 14px; min-height: 48px; }
+.clue-cat { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 4vh, 36px); line-height: 1; }
+.clue-val { font-family: var(--display); font-weight: 900; font-size: clamp(22px, 4vh, 36px); color: var(--muted); line-height: 1; }
+.head-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+.timer { display: flex; align-items: center; gap: 10px; }
+.timer-track { width: 160px; height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+.timer-fill { height: 100%; width: 100%; background: var(--heat-1); border-radius: 5px; }
+.timer-text { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 7ch; }
+
+.clue-body {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; gap: 22px; padding: 10px 4%;
+}
+.question {
+  font-weight: 700;
+  font-size: clamp(28px, 6.2vh, 62px);
+  line-height: 1.22;
+  max-width: 28em;
+  text-wrap: balance;
+  margin: 0;
+}
+.answer {
+  font-size: clamp(22px, 4.4vh, 42px);
+  line-height: 1.25;
+  max-width: 30em;
+  text-wrap: balance;
+  margin: 0;
+  padding: 14px 26px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+.answer .lead { display: block; font-size: 0.55em; color: var(--muted); margin-bottom: 6px; font-weight: 700; }
+.reveal { animation: open 220ms ease-out; }
+
+.clue-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px; align-items: end;
+}
+.team-actions { display: flex; flex-direction: column; gap: 8px; }
+.team-actions.right { align-items: flex-end; }
+.team-actions .who { font-weight: 700; font-size: 18px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-actions .row { display: flex; gap: 8px; }
+.center-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+
+.btn {
+  min-height: 56px; padding: 0 22px; border-radius: 14px;
+  border: 2px solid var(--line); background: var(--surface);
+  font-weight: 700; font-size: 18px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.good { background: var(--good); color: #FFFFFF; border-color: var(--good); }
+.btn.bad { border-color: var(--bad); color: var(--bad); }
+.btn.big { min-height: 64px; font-size: 21px; padding: 0 30px; }
+.btn.small { min-height: 44px; font-size: 16px; padding: 0 16px; }
+.btn[disabled] { opacity: 0.38; cursor: default; }
+.btn.selected-good { background: var(--good); color: #FFFFFF; border-color: var(--good); }
+.btn.selected-bad { background: var(--bad); color: #FFFFFF; border-color: var(--bad); }
+.missed-tag { color: var(--bad); font-weight: 700; font-size: 18px; min-height: 56px; display: inline-flex; align-items: center; }
+
+/* ---------- wager + splash ---------- */
+.center-stack { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; }
+.splash-title { font-family: var(--display); font-weight: 900; font-size: clamp(56px, 13vh, 120px); line-height: 0.95; margin: 0; }
+.splash-sub { font-size: clamp(18px, 3vh, 26px); color: var(--muted); margin: 0; max-width: 34em; }
+.choice-row { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+.team-choice { min-width: 240px; min-height: 84px; font-size: 24px; border-width: 3px; }
+.team-choice.t0 { border-color: var(--team-0); color: var(--team-0); }
+.team-choice.t1 { border-color: var(--team-1); color: var(--team-1); }
+.stepper { display: flex; align-items: center; gap: 14px; }
+.stepper output { font-family: var(--display); font-weight: 900; font-size: clamp(54px, 11vh, 96px); min-width: 4ch; text-align: center; font-variant-numeric: tabular-nums; line-height: 1; }
+.stepper .adj { width: 60px; height: 60px; font-size: 30px; }
+.wager-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: min(1000px, 100%); }
+.wager-card { background: var(--surface); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; border: 3px solid var(--tc); }
+.wager-card.t0 { --tc: var(--team-0); }
+.wager-card.t1 { --tc: var(--team-1); }
+.wager-card .who { color: var(--tc); font-weight: 700; font-size: 22px; }
+.wager-card .has { color: var(--muted); font-size: 16px; }
+
+/* ---------- setup / done ---------- */
+.setup { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; padding: 0 3%; overflow: auto; }
+.title-block h1 { font-family: var(--display); font-weight: 900; font-size: clamp(64px, 15vh, 150px); line-height: 0.88; margin: 0 0 18px; letter-spacing: -0.005em; }
+.title-block .meter { display: flex; gap: 6px; margin-bottom: 22px; }
+.title-block .meter span { flex: 1; height: 14px; border-radius: 7px; }
+.title-block p { font-size: clamp(18px, 2.8vh, 24px); color: var(--muted); margin: 0; max-width: 24em; line-height: 1.4; }
+.form { background: var(--surface); border-radius: 18px; padding: 26px; display: flex; flex-direction: column; gap: 18px; }
+.field label { display: block; font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+.field input {
+  width: 100%; min-height: 52px; border-radius: 12px; border: 2px solid var(--line);
+  background: var(--bg); color: var(--ink); font: inherit; font-size: 20px; padding: 0 14px;
+}
+.field.t0 label { color: var(--team-0); }
+.field.t1 label { color: var(--team-1); }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 52px; background: transparent; border: 0; padding: 0; text-align: left; font-size: 17px; }
+.switch { width: 54px; height: 32px; border-radius: 16px; background: var(--surface-2); border: 2px solid var(--line); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--muted); transition: transform 150ms ease; }
+.toggle[aria-checked="true"] .switch { background: var(--heat-1); border-color: var(--heat-1); }
+.toggle[aria-checked="true"] .switch::after { transform: translateX(22px); background: #FFFFFF; }
+
+@media (max-width: 760px) { .setup { grid-template-columns: 1fr; gap: 24px; } .wager-pair { grid-template-columns: 1fr; } }
+.done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; text-align: center; }
+.done h1 { font-family: var(--display); font-weight: 900; font-size: clamp(60px, 14vh, 140px); line-height: 0.9; margin: 0; }
+.final-scores { display: flex; gap: 22px; }
+.final-scores .team { flex-direction: column; min-width: 260px; padding: 18px 26px; gap: 4px; }
+
+/* ---------- sheet ---------- */
+.sheet { background: var(--surface); border-radius: 20px; padding: 24px; width: min(560px, 92vw); max-height: 88vh; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+.sheet h2 { font-family: var(--display); font-weight: 900; font-size: 36px; margin: 0 0 6px; line-height: 1; }
+.sheet .btn { width: 100%; justify-content: flex-start; }
+.sheet p { margin: 0 0 10px; font-size: 17px; line-height: 1.45; }
+.sheet .btn-row { display: flex; gap: 10px; }
+.sheet .btn-row .btn { justify-content: center; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===================== QUESTIONS ===================== */
+const ROUNDS = [
+  {
+    name: "Round 1",
+    values: [100, 200, 300, 400, 500],
+    categories: [
+      { title: "What is anger?", clues: [
+        { q: "Is anger good or bad?", a: "Neither. It’s the way we express anger that makes it good or bad." },
+        { q: "Finish the sentence: “Rage is anger ___.”", a: "Out of control." },
+        { q: "Name one of the four words inside anger.", a: "Displeasure, resentment, hostility, or frustration." },
+        { q: "Which of the four words inside anger means “to hold a grudge, to feel bitter”?", a: "Resentment." },
+        { q: "Name three ways your body responds to anger.", a: "Any three: sweaty palms, tight fists, rapid breathing, dilated pupils, upset stomach or butterflies, headache, higher blood pressure, higher blood sugar, an adrenaline boost." },
+      ]},
+      { title: "How anger works", clues: [
+        { q: "If you keep feeding a little lizard in the basement with anger, what does it grow into?", a: "A massive Godzilla monster." },
+        { q: "Which old saying sounds good, but for many people only suppresses anger?", a: "“Learn to count to ten and your anger will disappear.”" },
+        { q: "Which part of your mind is aware of everything going on, like knowing exactly what’s in your pockets?", a: "The conscious mind." },
+        { q: "What is “fight or flight”?", a: "A physiological reaction to a perceived harmful event, attack, or threat to survival." },
+        { q: "In the backpack example, when one thing comes out of the backpack, what comes out with it?", a: "Every thought, feeling, and belief attached to it." },
+      ]},
+      { title: "Domestic violence", clues: [
+        { q: "Whose responsibility is it to stop abusive behavior?", a: "Always the abuser’s." },
+        { q: "Name the three types of abuse we discussed.", a: "Physical, emotional, and sexual." },
+        { q: "Which everyday expression comes from an old rule about a stick no thicker than a man’s thumb?", a: "“Rule of thumb.”" },
+        { q: "Name the three stages of the cycle of violence.", a: "The honeymoon period (calm stage), tension building, and the abusive incident." },
+        { q: "Domestic violence is a system of abusive behaviors used to maintain what?", a: "Power and control." },
+      ]},
+      { title: "Alcohol and drugs", clues: [
+        { q: "True or false: you’re not responsible for violent acts if you were drinking or using.", a: "False. We are always responsible for our actions." },
+        { q: "Drugs are a symptom of what?", a: "A much greater disease." },
+        { q: "What do we call someone addicted to anger?", a: "A rage-aholic." },
+        { q: "Name the three ways denial talks.", a: "Rationalizing, minimizing, and blaming." },
+        { q: "During roughly the first how many days of anger abstinence do many ragers feel most vulnerable?", a: "The first 90 days." },
+      ]},
+      { title: "The ABC’s", clues: [
+        { q: "What does the A in the ABC’s of anger stand for?", a: "Abstain from negative thoughts and behaviors." },
+        { q: "What does the B stand for?", a: "Beliefs. Develop new beliefs." },
+        { q: "What does the C stand for?", a: "Communication." },
+        { q: "Name three ways we communicate with each other.", a: "Any three: verbal, tone, language expressions, non-verbal body language, distance, and listening." },
+        { q: "What is necessary to have effective one-on-one communication?", a: "Trust." },
+      ]},
+      { title: "Principles of change", clues: [
+        { q: "Finish the saying: “Unforgiveness is like drinking poison and…”", a: "“…hoping the other person dies.”" },
+        { q: "Pride is the downfall of what?", a: "All relationships." },
+        { q: "What is the opposite of accountability?", a: "Pride." },
+        { q: "How is empathy defined?", a: "The ability to understand and share the feelings of another." },
+        { q: "When you start practicing the principles of change, how many should you work on at a time?", a: "One or two at a time." },
+      ]},
+    ],
+  },
+  {
+    name: "Double round",
+    values: [200, 400, 600, 800, 1000],
+    categories: [
+      { title: "Cognitive change", clues: [
+        { q: "What does the word “cognitive” mean?", a: "A mental activity: to think or remember." },
+        { q: "Finish the sentence: “People always act according to what they ___.”", a: "Believe." },
+        { q: "In the self-control model, behavior always has a what?", a: "A purpose." },
+        { q: "When someone says “I did that without thinking,” what is it really?", a: "A habit formed from patterns of thinking." },
+        { q: "In the self-control model, what leads to the rules that tell us how to act?", a: "Our beliefs." },
+      ]},
+      { title: "The 5 basic needs", clues: [
+        { q: "Which basic need is about happiness and variety?", a: "Joy and fun." },
+        { q: "The number one goal of cognitive change is to help us maintain which need?", a: "Freedom." },
+        { q: "When this need gets twisted, it turns into a desire to dominate or control others. Which need is it?", a: "Mastery." },
+        { q: "Which basic need shows up in our desire to have children and leave a legacy?", a: "Survival." },
+        { q: "Name all five basic needs.", a: "Freedom, love and belonging, mastery, joy and fun, and survival." },
+      ]},
+      { title: "Windshield and wipers", clues: [
+        { q: "We view the world through what?", a: "Our beliefs: the belief windshield." },
+        { q: "The rules our beliefs give us are like what on the highway?", a: "Signposts." },
+        { q: "What are the windshield wipers used for?", a: "Evaluating our belief windshield." },
+        { q: "What question should you always ask yourself when evaluating a belief?", a: "“Will this belief meet my needs over time?”" },
+        { q: "Finish the saying: “He who angers you…”", a: "“…controls you.”" },
+      ]},
+      { title: "The conflict cycle", clues: [
+        { q: "What is step one of the conflict cycle?", a: "Problem situation." },
+        { q: "What is step three of the conflict cycle?", a: "Your actions." },
+        { q: "What should you do before acting on your feelings or thoughts?", a: "STOP and think." },
+        { q: "What is the last step of the conflict cycle?", a: "Problem situation worsens." },
+        { q: "Name all five steps of the conflict cycle, in order.", a: "Problem situation, thoughts and feelings, your actions, consequences, problem situation worsens." },
+      ]},
+      { title: "Problem solving", clues: [
+        { q: "What is step one of problem solving?", a: "Problem and goal." },
+        { q: "What three things do you do before you respond to a conflict?", a: "Stop, think, breathe." },
+        { q: "In problem solving, which reaction is not the best reaction?", a: "The first reaction." },
+        { q: "In the problem and goal step, what should your goal be?", a: "To resolve it, not react." },
+        { q: "Name all five steps to problem solving, in order.", a: "Problem and goal, information and insight, alternative and consequences, choose/plan/do, evaluate." },
+      ]},
+      { title: "Famous words", clues: [
+        { q: "Finish it: “No one can have a tug-of-war alone. Drop your…”", a: "“…end of the rope!”" },
+        { q: "Who said, “Never, never, never, never, never give up”?", a: "Winston Churchill." },
+        { q: "C.S. Lewis said a proud person is always looking down. What can’t they see?", a: "Something that is above them." },
+        { q: "The saying “patience is a virtue” literally means what?", a: "Patience is a principle." },
+        { q: "Forgiveness is like being freed from what?", a: "A prison." },
+      ]},
+    ],
+  },
+];
+const FINAL = {
+  category: "The big picture",
+  q: "What is the goal of anger management?",
+  a: "To develop a long-term change in thought and behavior.",
+};
+
+/* ===================== STATE ===================== */
+const STORE_KEY = "keep-your-cool-v1";
+const PREFS_KEY = "keep-your-cool-prefs";
+let state = loadState();
+let timerId = null;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (s && s.v === 1 && Array.isArray(s.teams) && s.teams.length === 2) return s;
+  } catch (e) {}
+  return null;
+}
+function save() {
+  try {
+    if (state) localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    else localStorage.removeItem(STORE_KEY);
+  } catch (e) {}
+}
+function loadPrefs() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
+    if (p && Array.isArray(p.names)) return p;
+  } catch (e) {}
+  return { names: ["Team 1", "Team 2"], penalty: false, bonus: true };
+}
+function savePrefs(p) { try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch (e) {} }
+
+function pickBonus() {
+  return ROUNDS.map(() => [Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 4)]);
+}
+function newGame(names, options) {
+  return {
+    v: 1, phase: "board", round: 0,
+    teams: [{ name: names[0], score: 0 }, { name: names[1], score: 0 }],
+    control: null, used: {}, bonus: pickBonus(), options, final: null,
+  };
+}
+const key = (round, c, r) => round + "-" + c + "-" + r;
+const fmt = (n) => (n < 0 ? "\u2212" + Math.abs(n).toLocaleString("en-US") : n.toLocaleString("en-US"));
+function remaining() {
+  let n = 0;
+  for (let c = 0; c < 6; c++) for (let r = 0; r < 5; r++) if (!state.used[key(state.round, c, r)]) n++;
+  return n;
+}
+function isBonus(c, r) {
+  if (!state.options.bonus) return false;
+  const b = state.bonus[state.round];
+  return b && b[0] === c && b[1] === r;
+}
+function addScore(i, pts) { state.teams[i].score += pts; }
+
+/* ===================== DOM HELPERS ===================== */
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  if (props) {
+    for (const [k, v] of Object.entries(props)) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+function heatBar(cls) {
+  return h("div", { class: cls, "aria-hidden": "true" }, [1, 2, 3, 4, 5].map((n) => h("span", { class: "heat-" + n })));
+}
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function closeLayers(selector) {
+  stopTimer();
+  document.querySelectorAll(selector || ".layer").forEach((el) => el.remove());
+}
+function layer(label, extraClass) {
+  const el = h("div", { class: "layer" + (extraClass ? " " + extraClass : ""), role: "dialog", "aria-modal": "true", "aria-label": label });
+  document.body.append(el);
+  return el;
+}
+function focusFirst(el) {
+  const b = el.querySelector("button:not([disabled]), input");
+  if (b) b.focus({ preventScroll: true });
+}
+
+/* ===================== RENDER ===================== */
+function render() {
+  const app = document.getElementById("app");
+  app.replaceChildren(h("div", { class: "rotate-hint" }, "Turn your iPad sideways for the best view."));
+  if (!state) { app.append(viewSetup()); return; }
+  if (state.phase === "done") { app.append(viewDone()); return; }
+  app.append(viewTopbar(), viewBoard(), viewScorebar());
+  if (state.phase === "final" && !document.querySelector(".final-layer")) openFinal();
+}
+
+function viewTopbar() {
+  const label = state.phase === "final" ? "Final round" : ROUNDS[state.round].name + " of 2";
+  return h("header", { class: "topbar" },
+    h("div", { class: "brand" }, "Keep Your Cool"),
+    heatBar("heatline"),
+    h("div", { class: "round-name" }, label),
+    h("button", { class: "ghost", onclick: openMenu }, "Menu"),
+  );
+}
+
+function viewBoard() {
+  const R = ROUNDS[state.round];
+  const grid = h("div", { class: "board" });
+  R.categories.forEach((cat) => grid.append(h("div", { class: "cat" }, cat.title)));
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 6; c++) {
+      const used = !!state.used[key(state.round, c, r)];
+      const cat = R.categories[c];
+      grid.append(h("button", {
+        class: "tile heat-" + (r + 1) + (used ? " used" : ""),
+        "aria-label": used ? cat.title + ", " + R.values[r] + ", already played" : cat.title + " for " + R.values[r],
+        disabled: used,
+        onclick: () => (isBonus(c, r) ? openBonus(c, r) : openClue(c, r)),
+      }, used ? "" : String(R.values[r])));
+    }
+  }
+  return grid;
+}
+
+function teamPanel(i) {
+  const t = state.teams[i];
+  const control = state.control === i;
+  return h("section", { class: "team t" + i + (control ? " in-control" : "") },
+    h("div", { class: "team-label" },
+      h("span", { class: "team-name", text: t.name }),
+      h("span", { class: "picks" }, control ? "Picks next" : "\u00a0"),
+    ),
+    h("button", { class: "adj", "aria-label": "Take 100 points from " + t.name, onclick: () => { addScore(i, -100); save(); render(); } }, "\u2212"),
+    h("output", { class: "score" }, fmt(t.score)),
+    h("button", { class: "adj", "aria-label": "Give 100 points to " + t.name, onclick: () => { addScore(i, 100); save(); render(); } }, "+"),
+  );
+}
+
+function viewScorebar() {
+  const left = state.phase === "final" ? null : remaining();
+  return h("footer", { class: "scorebar" },
+    teamPanel(0),
+    h("div", { class: "mid" }, left == null ? "" : [h("strong", {}, String(left)), left === 1 ? "question left" : "questions left"]),
+    teamPanel(1),
+  );
+}
+
+/* ===================== SETUP ===================== */
+function viewSetup() {
+  const prefs = loadPrefs();
+  const opts = { penalty: prefs.penalty, bonus: prefs.bonus };
+  const n0 = h("input", { id: "n0", value: prefs.names[0], maxlength: "24", autocomplete: "off" });
+  const n1 = h("input", { id: "n1", value: prefs.names[1], maxlength: "24", autocomplete: "off" });
+
+  function toggle(label, k) {
+    const btn = h("button", { class: "toggle", role: "switch", "aria-checked": String(opts[k]) }, h("span", {}, label), h("span", { class: "switch", "aria-hidden": "true" }));
+    btn.addEventListener("click", () => { opts[k] = !opts[k]; btn.setAttribute("aria-checked", String(opts[k])); });
+    return btn;
+  }
+  function start() {
+    const names = [n0.value.trim() || "Team 1", n1.value.trim() || "Team 2"];
+    savePrefs({ names, penalty: opts.penalty, bonus: opts.bonus });
+    state = newGame(names, { penalty: opts.penalty, bonus: opts.bonus });
+    save(); render();
+  }
+  return h("main", { class: "setup" },
+    h("div", { class: "title-block" },
+      h("h1", {}, "Keep", h("br"), "Your Cool"),
+      heatBar("meter"),
+      h("p", {}, "A two-team review game for the anger management course. Sixty questions across two rounds, then a final round to decide it."),
+    ),
+    h("div", { class: "form" },
+      h("div", { class: "field t0" }, h("label", { for: "n0" }, "First team"), n0),
+      h("div", { class: "field t1" }, h("label", { for: "n1" }, "Second team"), n1),
+      toggle("Wrong answers lose points", "penalty"),
+      toggle("Include a bonus wager each round", "bonus"),
+      h("button", { class: "btn primary big", onclick: start }, "Start game"),
+    ),
+  );
+}
+
+/* ===================== CLUE ===================== */
+function timerWidget(seconds) {
+  const fill = h("div", { class: "timer-fill" });
+  const text = h("span", { class: "timer-text" }, "");
+  const startBtn = h("button", { class: "btn small" }, seconds + "-second timer");
+  const wrap = h("div", { class: "timer" }, startBtn);
+  startBtn.addEventListener("click", () => {
+    stopTimer();
+    const end = Date.now() + seconds * 1000;
+    wrap.replaceChildren(h("div", { class: "timer-track" }, fill), text);
+    const tick = () => {
+      const ms = Math.max(0, end - Date.now());
+      fill.style.width = (ms / (seconds * 1000)) * 100 + "%";
+      fill.style.background = ms < 10000 ? "var(--heat-5)" : "var(--heat-1)";
+      text.textContent = ms > 0 ? Math.ceil(ms / 1000) + " sec" : "Time’s up";
+      if (ms <= 0) stopTimer();
+    };
+    tick();
+    timerId = setInterval(tick, 200);
+  });
+  return wrap;
+}
+
+function checkRoundDone() {
+  if (remaining() > 0) return;
+  const L = layer("Round complete");
+  const isFirst = state.round === 0;
+  L.append(h("div", { class: "center-stack" },
+    h("h1", { class: "splash-title" }, isFirst ? "Round 1 is done" : "Board cleared"),
+    h("p", { class: "splash-sub" }, state.teams[0].name + ": " + fmt(state.teams[0].score) + "    " + state.teams[1].name + ": " + fmt(state.teams[1].score)),
+    h("button", { class: "btn primary big", onclick: () => {
+      closeLayers();
+      if (isFirst) { state.round = 1; } else { startFinal(); }
+      save(); render();
+    } }, isFirst ? "Start the double round" : "Go to the final round"),
+  ));
+  focusFirst(L);
+}
+
+function openClue(c, r) {
+  const R = ROUNDS[state.round];
+  const cat = R.categories[c];
+  const clue = cat.clues[r];
+  const value = R.values[r];
+  const k = key(state.round, c, r);
+  const missed = [false, false];
+  let revealed = false;
+  let acted = false;
+  const L = layer(cat.title + " for " + value);
+  const timer = timerWidget(30);
+
+  function finish(winner) {
+    state.used[k] = true;
+    if (winner != null) { addScore(winner, value); state.control = winner; }
+    save();
+    closeLayers();
+    render();
+    checkRoundDone();
+  }
+  function teamBlock(i, right) {
+    const t = state.teams[i];
+    const kids = [h("div", { class: "who", style: "color: var(--team-" + i + ")", text: t.name })];
+    if (missed[i]) {
+      kids.push(h("span", { class: "missed-tag" }, state.options.penalty ? "Missed  \u2212" + value : "Missed"));
+    } else {
+      kids.push(h("div", { class: "row" },
+        h("button", { class: "btn good", onclick: () => finish(i) }, "Got it  +" + value),
+        h("button", { class: "btn bad", onclick: () => {
+          missed[i] = true; acted = true;
+          if (state.options.penalty) { addScore(i, -value); save(); }
+          if (missed[0] && missed[1]) revealed = true;
+          draw();
+        } }, "Missed"),
+      ));
+    }
+    return h("div", { class: "team-actions" + (right ? " right" : "") }, kids);
+  }
+  function draw() {
+    L.replaceChildren(
+      h("div", { class: "clue-band heat-" + (r + 1) }),
+      h("div", { class: "clue-head" },
+        acted ? null : h("button", { class: "ghost", onclick: () => closeLayers() }, "Back to board"),
+        h("span", { class: "clue-cat" }, cat.title),
+        h("span", { class: "clue-val" }, String(value)),
+        h("div", { class: "head-right" }, timer),
+      ),
+      h("div", { class: "clue-body" },
+        h("p", { class: "question" }, clue.q),
+        revealed ? h("p", { class: "answer reveal" }, h("span", { class: "lead" }, "Answer"), clue.a) : null,
+      ),
+      h("div", { class: "clue-foot" },
+        teamBlock(0, false),
+        h("div", { class: "center-actions" },
+          revealed ? null : h("button", { class: "btn primary big", onclick: () => { revealed = true; draw(); } }, "Show answer"),
+          h("button", { class: "btn", onclick: () => finish(null) }, "No one got it"),
+        ),
+        teamBlock(1, true),
+      ),
+    );
+  }
+  draw();
+  focusFirst(L);
+}
+
+/* ===================== BONUS WAGER ===================== */
+function stepper(get, set, min, max, step) {
+  const out = h("output", {}, fmt(get()));
+  const sync = () => { out.textContent = fmt(get()); };
+  return h("div", { class: "stepper" },
+    h("button", { class: "adj", "aria-label": "Lower the wager", onclick: () => { set(Math.max(min, get() - step)); sync(); } }, "\u2212"),
+    out,
+    h("button", { class: "adj", "aria-label": "Raise the wager", onclick: () => { set(Math.min(max, get() + step)); sync(); } }, "+"),
+    h("button", { class: "btn small", onclick: () => { set(max); sync(); } }, "All in"),
+  );
+}
+
+function openBonus(c, r) {
+  const R = ROUNDS[state.round];
+  const cat = R.categories[c];
+  const clue = cat.clues[r];
+  const k = key(state.round, c, r);
+  const L = layer("Bonus wager");
+  let team = null;
+  let wager = R.values[r];
+  let revealed = false;
+  const timer = timerWidget(30);
+
+  function finish(correct) {
+    state.used[k] = true;
+    addScore(team, correct ? wager : -wager);
+    if (correct) state.control = team;
+    save(); closeLayers(); render(); checkRoundDone();
+  }
+  function pickTeam() {
+    L.replaceChildren(h("div", { class: "center-stack" },
+      h("h1", { class: "splash-title" }, "Bonus wager"),
+      h("p", { class: "splash-sub" }, cat.title + ". Which team picked this one?"),
+      h("div", { class: "choice-row" }, [0, 1].map((i) =>
+        h("button", { class: "btn team-choice t" + i, onclick: () => { team = i; setWager(); } }, state.teams[i].name))),
+    ));
+    focusFirst(L);
+  }
+  function setWager() {
+    const max = Math.max(state.teams[team].score, R.values[4]);
+    wager = Math.min(wager, max);
+    L.replaceChildren(h("div", { class: "center-stack" },
+      h("h1", { class: "splash-title", style: "color: var(--team-" + team + ")", text: state.teams[team].name }),
+      h("p", { class: "splash-sub" }, "Bonus wager in " + cat.title + ". How many points will you risk? You can wager up to " + fmt(max) + "."),
+      stepper(() => wager, (v) => { wager = v; }, 100, max, 100),
+      h("button", { class: "btn primary big", onclick: question }, "Lock in wager"),
+    ));
+    focusFirst(L);
+  }
+  function question() {
+    L.replaceChildren(
+      h("div", { class: "clue-band heat-" + (r + 1) }),
+      h("div", { class: "clue-head" },
+        h("span", { class: "clue-cat" }, cat.title),
+        h("span", { class: "clue-val" }, "Bonus wager: " + fmt(wager)),
+        h("div", { class: "head-right" }, timer),
+      ),
+      h("div", { class: "clue-body" },
+        h("p", { class: "question" }, clue.q),
+        revealed ? h("p", { class: "answer reveal" }, h("span", { class: "lead" }, "Answer"), clue.a) : null,
+      ),
+      h("div", { class: "clue-foot" },
+        h("div", { class: "team-actions" },
+          h("div", { class: "who", style: "color: var(--team-" + team + ")", text: state.teams[team].name }),
+          h("div", { class: "row" },
+            h("button", { class: "btn good", onclick: () => finish(true) }, "Got it  +" + fmt(wager)),
+            h("button", { class: "btn bad", onclick: () => finish(false) }, "Missed  \u2212" + fmt(wager)),
+          ),
+        ),
+        h("div", { class: "center-actions" },
+          revealed ? null : h("button", { class: "btn primary big", onclick: () => { revealed = true; question(); } }, "Show answer"),
+        ),
+        h("div"),
+      ),
+    );
+  }
+  if (state.control != null) { team = state.control; }
+  pickTeam();
+}
+
+/* ===================== FINAL ROUND ===================== */
+function startFinal() {
+  state.phase = "final";
+  state.final = { step: "wager", wagers: [0, 0], marks: [null, null] };
+}
+
+function openFinal() {
+  const L = layer("Final round", "final-layer");
+  const F = state.final;
+  const finalTimer = timerWidget(60);
+
+  function menuBtn() { return h("button", { class: "ghost", onclick: openMenu }, "Menu"); }
+
+  function drawWager() {
+    const cards = [0, 1].map((i) => {
+      const t = state.teams[i];
+      const max = Math.max(t.score, 0);
+      F.wagers[i] = Math.min(F.wagers[i], max);
+      return h("div", { class: "wager-card t" + i },
+        h("div", { class: "who", text: t.name }),
+        h("div", { class: "has" }, "Has " + fmt(t.score) + " points"),
+        max > 0
+          ? stepper(() => F.wagers[i], (v) => { F.wagers[i] = v; save(); }, 0, max, 100)
+          : h("div", { class: "has" }, "Plays for pride: no points to wager"),
+      );
+    });
+    L.replaceChildren(
+      h("div", { class: "clue-head" }, h("span", { class: "clue-cat" }, "Final round"), h("div", { class: "head-right" }, menuBtn())),
+      h("div", { class: "center-stack" },
+        h("h1", { class: "splash-title" }, FINAL.category),
+        h("p", { class: "splash-sub" }, "Each team decides how many points to risk on one last question."),
+        h("div", { class: "wager-pair" }, cards),
+        h("button", { class: "btn primary big", onclick: () => { F.step = "question"; save(); drawQuestion(); } }, "Lock in wagers"),
+      ),
+    );
+    focusFirst(L);
+  }
+
+  function drawQuestion() {
+    const revealed = F.step === "reveal";
+    const markRow = (i) => h("div", { class: "team-actions" + (i === 1 ? " right" : "") },
+      h("div", { class: "who", style: "color: var(--team-" + i + ")", text: state.teams[i].name + ", wagered " + fmt(F.wagers[i]) }),
+      h("div", { class: "row" },
+        h("button", { class: "btn" + (F.marks[i] === true ? " selected-good" : " good"), disabled: !revealed, onclick: () => { F.marks[i] = true; save(); drawQuestion(); } }, "Got it"),
+        h("button", { class: "btn" + (F.marks[i] === false ? " selected-bad" : " bad"), disabled: !revealed, onclick: () => { F.marks[i] = false; save(); drawQuestion(); } }, "Missed"),
+      ),
+    );
+    const ready = F.marks[0] !== null && F.marks[1] !== null;
+    L.replaceChildren(
+      h("div", { class: "clue-band heat-5" }),
+      h("div", { class: "clue-head" },
+        h("span", { class: "clue-cat" }, "Final round: " + FINAL.category),
+        h("div", { class: "head-right" }, finalTimer, menuBtn()),
+      ),
+      h("div", { class: "clue-body" },
+        h("p", { class: "question" }, FINAL.q),
+        revealed ? h("p", { class: "answer reveal" }, h("span", { class: "lead" }, "Answer"), FINAL.a) : null,
+      ),
+      h("div", { class: "clue-foot" },
+        markRow(0),
+        h("div", { class: "center-actions" },
+          revealed
+            ? h("button", { class: "btn primary big", disabled: !ready, onclick: finishGame }, "See the winner")
+            : h("button", { class: "btn primary big", onclick: () => { F.step = "reveal"; save(); drawQuestion(); } }, "Show answer"),
+        ),
+        markRow(1),
+      ),
+    );
+  }
+
+  function finishGame() {
+    [0, 1].forEach((i) => addScore(i, F.marks[i] ? F.wagers[i] : -F.wagers[i]));
+    state.phase = "done";
+    save(); closeLayers(); render();
+  }
+
+  if (F.step === "wager") drawWager(); else drawQuestion();
+}
+
+/* ===================== DONE ===================== */
+function viewDone() {
+  const [a, b] = state.teams;
+  const headline = a.score === b.score ? "It’s a tie!" : (a.score > b.score ? a.name : b.name);
+  const winner = a.score === b.score ? null : a.score > b.score ? 0 : 1;
+  function again(keepNames) {
+    const prefs = loadPrefs();
+    if (keepNames) {
+      state = newGame([a.name, b.name], state.options);
+    } else {
+      savePrefs(prefs); state = null;
+    }
+    save(); render();
+  }
+  return h("main", { class: "done" },
+    heatBar("heatline"),
+    winner == null ? null : h("p", { class: "splash-sub" }, "And the winner is…"),
+    h("h1", { text: headline, style: winner == null ? "" : "color: var(--team-" + winner + ")" }),
+    h("div", { class: "final-scores" }, [0, 1].map((i) =>
+      h("section", { class: "team t" + i + (winner === i ? " in-control" : "") },
+        h("span", { class: "team-name", text: state.teams[i].name }),
+        h("output", { class: "score" }, fmt(state.teams[i].score)),
+      ))),
+    h("p", { class: "splash-sub" }, "Thank you for playing. Remember: he who angers you, controls you."),
+    h("div", { class: "choice-row" },
+      h("button", { class: "btn primary big", onclick: () => again(true) }, "Play again"),
+      h("button", { class: "btn big", onclick: () => again(false) }, "New teams"),
+    ),
+  );
+}
+
+/* ===================== MENU + DIALOGS ===================== */
+function sheet(label, build) {
+  const L = layer(label, "sheet-layer");
+  const box = h("div", { class: "sheet" });
+  L.append(box);
+  L.addEventListener("click", (e) => { if (e.target === L) L.remove(); });
+  build(box, () => L.remove());
+  focusFirst(box);
+}
+
+function openMenu() {
+  sheet("Menu", (box, close) => {
+    const items = [h("h2", {}, "Menu")];
+    items.push(h("button", { class: "btn", onclick: close }, "Back to the game"));
+    items.push(h("button", { class: "btn", onclick: () => { close(); renameTeams(); } }, "Rename teams"));
+    if (state.phase === "board" && state.round === 0) {
+      items.push(h("button", { class: "btn", onclick: () => { close(); confirmBox("Skip to the double round?", "Unplayed questions in round 1 will be skipped.", "Skip ahead", () => { state.round = 1; save(); render(); }); } }, "Skip to the double round"));
+    }
+    if (state.phase === "board") {
+      items.push(h("button", { class: "btn", onclick: () => { close(); confirmBox("Go to the final round?", "Any unplayed questions will be skipped.", "Go to final round", () => { startFinal(); save(); render(); }); } }, "Go to the final round"));
+    }
+    items.push(h("button", { class: "btn", onclick: () => { close(); howToPlay(); } }, "How to play"));
+    items.push(h("button", { class: "btn bad", onclick: () => { close(); confirmBox("End this game?", "Scores will be cleared and you’ll return to the start screen.", "End game", () => { closeLayers(); state = null; save(); render(); }); } }, "End game and start over"));
+    box.append(...items);
+  });
+}
+
+function confirmBox(title, body, okLabel, onOk) {
+  sheet(title, (box, close) => {
+    box.append(
+      h("h2", {}, title),
+      h("p", {}, body),
+      h("div", { class: "btn-row" },
+        h("button", { class: "btn", onclick: close }, "Cancel"),
+        h("button", { class: "btn primary", onclick: () => { close(); closeLayers(".final-layer"); onOk(); } }, okLabel),
+      ),
+    );
+  });
+}
+
+function renameTeams() {
+  sheet("Rename teams", (box, close) => {
+    const i0 = h("input", { value: state.teams[0].name, maxlength: "24", autocomplete: "off", id: "rn0" });
+    const i1 = h("input", { value: state.teams[1].name, maxlength: "24", autocomplete: "off", id: "rn1" });
+    box.append(
+      h("h2", {}, "Rename teams"),
+      h("div", { class: "field t0" }, h("label", { for: "rn0" }, "First team"), i0),
+      h("div", { class: "field t1" }, h("label", { for: "rn1" }, "Second team"), i1),
+      h("div", { class: "btn-row" },
+        h("button", { class: "btn", onclick: close }, "Cancel"),
+        h("button", { class: "btn primary", onclick: () => {
+          state.teams[0].name = i0.value.trim() || state.teams[0].name;
+          state.teams[1].name = i1.value.trim() || state.teams[1].name;
+          const p = loadPrefs(); p.names = [state.teams[0].name, state.teams[1].name]; savePrefs(p);
+          save(); close();
+          const finalOpen = !!document.querySelector(".final-layer");
+          if (finalOpen) { closeLayers(".final-layer"); }
+          render();
+        } }, "Save names"),
+      ),
+    );
+  });
+}
+
+function howToPlay() {
+  sheet("How to play", (box, close) => {
+    box.append(
+      h("h2", {}, "How to play"),
+      h("p", {}, "Teams take turns picking a category and a value. Tap the tile, read the question aloud, and let the team answer."),
+      h("p", {}, "Tap Got it to award the points, or Missed to let the other team try. Tap Show answer whenever you’re ready, or No one got it to move on."),
+      h("p", {}, "The team that answered last picks next. The higher the number, the hotter the question."),
+      h("p", {}, "One tile per round hides a bonus wager. After two rounds, both teams wager on a final question."),
+      h("p", {}, "Use the − and + buttons beside each score to fix a mistake."),
+      h("button", { class: "btn primary", onclick: close }, "Got it"),
+    );
+  });
+}
+
+render();
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); }); }
+</script>
+</body>
+</html>
